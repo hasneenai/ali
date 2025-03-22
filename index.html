@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -73,17 +74,10 @@
     </style>
 </head>
 <body>
+<div class="container" id="content"></div>
 
-<div class="container">
-    {% for i in range(1, 9) %}
-        <h2 onclick="toggleLectures('lectureList{{i}}')">الفصل {{i}}</h2>
-        <div class="lectures" id="lectureList{{i}}"></div>
-    {% endfor %}
-
-    <div id="videoPlayer">
-        <a id="videoAnchor"></a>
-        <iframe id="videoFrame" src="" allowfullscreen></iframe>
-    </div>
+<div id="videoPlayer">
+    <iframe id="videoFrame" src="" allowfullscreen></iframe>
 </div>
 
 <script>
@@ -354,30 +348,41 @@
 ]
     };
 
-    function createLectures() {
-        for (let chapter = 1; chapter <= 8; chapter++) {
-            const lectureList = document.getElementById("lectureList" + chapter);
-            if (videoLinks[chapter]) {
-                videoLinks[chapter].forEach((link, index) => {
-                    const lectureDiv = document.createElement("div");
-                    lectureDiv.className = "lecture";
-                    lectureDiv.innerText = `محاضرة ${index + 1}`;
-                    lectureDiv.onclick = () => {
-                        document.getElementById("videoFrame").src = link;
-                        document.getElementById("videoAnchor").scrollIntoView({ behavior: 'smooth' });
-                    };
-                    lectureList.appendChild(lectureDiv);
-                });
-            }
+        function toggleLectures(id) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === "block" ? "none" : "block";
+    }
+
+    function playVideo(url) {
+        document.getElementById("videoFrame").src = url;
+    }
+
+    function loadContent() {
+        const container = document.getElementById("content");
+
+        for (let i = 1; i <= Object.keys(videoLinks).length; i++) {
+            const chapter = document.createElement("h2");
+            chapter.textContent = `الفصل ${i}`;
+            chapter.onclick = () => toggleLectures(`lectureList${i}`);
+            container.appendChild(chapter);
+
+            const lectureDiv = document.createElement("div");
+            lectureDiv.id = `lectureList${i}`;
+            lectureDiv.classList.add("lectures");
+
+            videoLinks[i].forEach((link, index) => {
+                const lecture = document.createElement("div");
+                lecture.classList.add("lecture");
+                lecture.textContent = `المحاضرة ${index + 1}`;
+                lecture.onclick = () => playVideo(link);
+                lectureDiv.appendChild(lecture);
+            });
+
+            container.appendChild(lectureDiv);
         }
     }
 
-    function toggleLectures(id) {
-        const section = document.getElementById(id);
-        section.style.display = section.style.display === "block" ? "none" : "block";
-    }
-
-    window.onload = createLectures;
+    window.onload = loadContent;
 </script>
 
 </body>
